@@ -16,7 +16,7 @@ from docx.shared import Cm, Pt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RESULTS = os.path.join(HERE, '..', 'part_b', 'results.json')
-REPO_URL = '[ссылка на репозиторий GitHub]'
+REPO_URL = 'https://github.com/churilina-polina/modern-ai-methods/tree/main/lab01'
 
 doc = Document()
 
