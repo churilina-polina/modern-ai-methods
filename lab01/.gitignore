@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+part_a/model.pkl
+part_a/sklearn_data/
+part_b/data/
+part_b/download.log
+*.pth
+report/~$*
+.DS_Store
