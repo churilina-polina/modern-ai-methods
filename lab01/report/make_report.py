@@ -45,6 +45,10 @@ for name, size in (('Heading 1', 14), ('Heading 2', 14)):
     st.element.rPr.rFonts.set(qn('w:eastAsia'), 'Times New Roman')
     st.element.rPr.rFonts.set(qn('w:ascii'), 'Times New Roman')
     st.element.rPr.rFonts.set(qn('w:hAnsi'), 'Times New Roman')
+    st.element.rPr.rFonts.set(qn('w:cs'), 'Times New Roman')
+    # шрифт темы (Calibri) перебивает явно заданный — убираем привязку к теме
+    for attr in ('w:asciiTheme', 'w:hAnsiTheme', 'w:eastAsiaTheme', 'w:cstheme'):
+        st.element.rPr.rFonts.attrib.pop(qn(attr), None)
     f = st.paragraph_format
     f.line_spacing_rule = WD_LINE_SPACING.ONE_POINT_FIVE
     f.first_line_indent = Cm(1.25)
@@ -81,9 +85,6 @@ def rich(parts):
             r = par.add_run(t)
             r.bold = 'b' in fmt
             r.italic = 'i' in fmt
-            if 'c' in fmt:
-                r.font.name = 'Courier New'
-                r.font.size = Pt(12)
     return par
 
 
@@ -181,7 +182,7 @@ def table(caption, header, rows, widths=None):
                 par.paragraph_format.line_spacing = 1.0
                 par.alignment = WD_ALIGN_PARAGRAPH.CENTER if i else WD_ALIGN_PARAGRAPH.LEFT
                 for r in par.runs:
-                    r.font.size = Pt(12)
+                    r.font.size = Pt(14)
     # Таблица не разрывается между страницами
     for ri, row in enumerate(t.rows):
         trPr = row._tr.get_or_add_trPr()
@@ -207,26 +208,26 @@ def add_field(par, instr):
 # ======================================= ТИТУЛЬНЫЙ ЛИСТ =======================================
 def tp(text, bold=False, size=14, space_after=0, align=WD_ALIGN_PARAGRAPH.CENTER):
     par = p(text, bold=bold, align=align, indent=False, size=size, space_after=space_after)
-    par.paragraph_format.line_spacing = 1.15
+    par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.ONE_POINT_FIVE
     return par
 
 
-tp('Министерство науки и высшего образования Российской Федерации', size=12)
-tp('федеральное государственное автономное образовательное учреждение высшего образования', size=12)
-tp('«НАЦИОНАЛЬНЫЙ ИССЛЕДОВАТЕЛЬСКИЙ УНИВЕРСИТЕТ ИТМО»', bold=True, size=12, space_after=24)
-tp('Факультет инфокоммуникационных технологий', space_after=90)
+tp('Министерство науки и высшего образования Российской Федерации')
+tp('федеральное государственное автономное образовательное учреждение высшего образования')
+tp('«НАЦИОНАЛЬНЫЙ ИССЛЕДОВАТЕЛЬСКИЙ УНИВЕРСИТЕТ ИТМО»', bold=True, space_after=24)
+tp('Факультет прикладной информатики', space_after=40)
 
-tp('ОТЧЕТ', bold=True, size=16)
-tp('ПО ЛАБОРАТОРНОЙ РАБОТЕ № 1', bold=True, size=16, space_after=12)
+tp('ОТЧЕТ', bold=True)
+tp('ПО ЛАБОРАТОРНОЙ РАБОТЕ № 1', bold=True, space_after=12)
 tp('по дисциплине «Современные методы искусственного интеллекта»', space_after=12)
-tp('Тема: «Классификация изображений с применением Transfer Learning»', space_after=100)
+tp('Тема: «Классификация изображений с применением Transfer Learning»', space_after=40)
 
 for line in ('Выполнила:', 'студентка группы K3320', 'Чурилина Полина Олеговна', '',
-             'Проверил:', 'Царёв Д.'):
+             'Проверил:', 'Царёв Д.В.'):
     par = tp(line, align=WD_ALIGN_PARAGRAPH.LEFT)
     par.paragraph_format.left_indent = Cm(9.5)
 
-for _ in range(6):
+for _ in range(2):
     tp('')
 tp('Санкт-Петербург')
 tp('2026')
@@ -243,7 +244,7 @@ for tag, val in (('begin', None), ('instr', 'PAGE'), ('end', None)):
     else:
         el = OxmlElement('w:fldChar'); el.set(qn('w:fldCharType'), tag)
     r._r.append(el)
-r.font.size = Pt(12)
+r.font.size = Pt(14)
 
 page_break()
 
@@ -532,7 +533,7 @@ if res is None:
 
 h1('2 Классификация изображений с применением Transfer Learning')
 h2('2.1 Выбор датасета')
-p('Для работы выбран открытый набор данных Oxford-IIIT Pet [5]: около 7 400 цветных фотографий '
+p('Для работы выбран открытый набор данных Oxford-IIIT Pet: около 7 400 цветных фотографий '
   'кошек и собак 37 пород (12 пород кошек и 25 пород собак), примерно по 200 изображений на класс. '
   'Задача является задачей мелкозернистой (fine-grained) классификации: многие породы похожи '
   'друг на друга, а фотографии сделаны в разных условиях (фон, ракурс, освещение, позы животных).')
@@ -545,7 +546,7 @@ p('Использовано официальное разбиение: выбо�
 figure('ячейка «Примеры изображений» из transfer_learning.ipynb', 'Примеры изображений набора Oxford-IIIT Pet')
 
 h2('2.2 Выбор и обоснование архитектуры')
-p('В качестве базовой сети выбрана MobileNetV2 [6], предобученная на ImageNet (веса IMAGENET1K_V2). '
+p('В качестве базовой сети выбрана MobileNetV2, предобученная на ImageNet (веса IMAGENET1K_V2). '
   'Обоснование выбора:')
 bullets([
     'малое число параметров (3.5 млн против 25.6 млн у ResNet-50 и 5.3 млн у EfficientNet-B0) и '
@@ -684,22 +685,6 @@ p('Во второй части решена задача классификац
   'на небольшом наборе данных (около 100 обучающих изображений на класс) за несколько минут '
   'обучения на ноутбуке, что при обучении сети с нуля было бы невозможно.')
 p('Все поставленные задачи выполнены.')
-page_break()
-
-# ============================ СПИСОК ИСПОЛЬЗОВАННЫХ ИСТОЧНИКОВ ============================
-h1('СПИСОК ИСПОЛЬЗОВАННЫХ ИСТОЧНИКОВ', center=True)
-refs = [
-    'Царёв Д. Современные методы искусственного интеллекта. Лекция 1. История ИИ [Электронный ресурс]. — СПб.: Университет ИТМО, 2026.',
-    'Лабораторная работа 1. Классификация изображений с применением Transfer Learning: методические указания. — СПб.: Университет ИТМО, 2026. — 22 с.',
-    'scikit-learn: Machine Learning in Python. User Guide [Электронный ресурс]. — URL: https://scikit-learn.org/stable/user_guide.html (дата обращения: 30.09.2026).',
-    'PyTorch Documentation. Transfer Learning for Computer Vision Tutorial [Электронный ресурс]. — URL: https://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html (дата обращения: 30.09.2026).',
-    'Parkhi O. M., Vedaldi A., Zisserman A., Jawahar C. V. Cats and Dogs // IEEE Conference on Computer Vision and Pattern Recognition (CVPR). — 2012. — P. 3498–3505.',
-    'Sandler M., Howard A., Zhu M., Zhmoginov A., Chen L.-C. MobileNetV2: Inverted Residuals and Linear Bottlenecks // IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR). — 2018. — P. 4510–4520.',
-    'Yosinski J., Clune J., Bengio Y., Lipson H. How transferable are features in deep neural networks? // Advances in Neural Information Processing Systems (NeurIPS). — 2014. — Vol. 27.',
-]
-for i, ref in enumerate(refs, 1):
-    par = p(f'{i}. {ref}')
-
 
 out = os.path.join(HERE, 'Отчет_ЛР1_Чурилина_K3320.docx')
 doc.save(out)

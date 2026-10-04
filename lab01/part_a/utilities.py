@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def visualize_classifier(classifier, X, y):
+def visualize_classifier(classifier, X, y, title=None):
     # Define the minimum and maximum values for X and Y
     # that will be used in the mesh grid
     min_x, max_x = X[:, 0].min() - 1.0, X[:, 0].max() + 1.0
@@ -35,6 +35,9 @@ def visualize_classifier(classifier, X, y):
     # Specify the ticks on the X and Y axes
     plt.xticks((np.arange(int(X[:, 0].min() - 1), int(X[:, 0].max() + 1), 1.0)))
     plt.yticks((np.arange(int(X[:, 1].min() - 1), int(X[:, 1].max() + 1), 1.0)))
+
+    if title:
+        plt.title(title)
 
     plt.show()
 

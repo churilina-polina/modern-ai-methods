@@ -22,4 +22,4 @@ classifier.fit(X, y)
 print(f"C = {C}, accuracy on train = {classifier.score(X, y):.2f}")
 
 # Визуализация работы классификатора
-visualize_classifier(classifier, X, y)
+visualize_classifier(classifier, X, y, title=f'Logistic regression, C = {C:g}')
